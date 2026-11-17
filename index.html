@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    :root { color-scheme: dark; --bg:#0d1714; --panel:#172720; --line:#355144; --text:#f1f2e9; --muted:#b4c6b8; --gold:#c7ad73; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font:16px/1.5 system-ui,-apple-system,Segoe UI,sans-serif; }
+    main { max-width:850px; margin:auto; padding:34px 18px 70px; }
+    .eyebrow { color:var(--gold); font-size:12px; font-weight:750; letter-spacing:.19em; }
+    h1 { font-family:Georgia,serif; font-size:clamp(30px,6vw,49px); line-height:1.1; margin:12px 0; }
+    .intro { color:var(--muted); max-width:640px; }
+    .layout { display:grid; grid-template-columns:1.1fr .9fr; gap:18px; margin-top:28px; }
+    .panel { border:1px solid var(--line); background:var(--panel); border-radius:14px; padding:22px; }
+    fieldset { border:0; padding:0; margin:0 0 24px; }
+    legend { font-weight:700; margin-bottom:11px; }
+    label { display:block; border:1px solid var(--line); border-radius:8px; padding:11px 13px; margin:7px 0; cursor:pointer; }
+    label:has(input:checked) { background:#294a3b; border-color:var(--gold); }
+    input { accent-color:var(--gold); margin-right:8px; }
+    .score { font-size:68px; font-weight:750; line-height:1.1; }
+    .score small { font-size:22px; color:var(--muted); }
+    .meter { height:10px; border-radius:20px; background:#35483d; overflow:hidden; margin:18px 0; }
+    #fill { height:100%; width:0%; background:var(--gold); transition:width .2s ease; }
+    #status { font-weight:750; font-size:22px; margin:15px 0 6px; }
+    #advice { color:var(--muted); }
+    button { border:1px solid var(--gold); background:transparent; color:var(--text); border-radius:8px; padding:11px 18px; cursor:pointer; font:inherit; }
+    button:hover { background:#294a3b; }
+    .note { font-size:13px; color:var(--muted); margin-top:22px; }
+    @media(max-width:650px) { .layout { grid-template-columns:1fr; } main { padding-top:22px; } }
+  </style>
+</head>
+<body>
+<main>
+  <div class="eyebrow">THE : FREELANCER FILE / FOUNDATIONS / 006</div>
+  <h1>Training Budget</h1>
+  <p class="intro">Your circumstances influence the demands you can reasonably place on a training session. Answer three questions to explore a starting recommendation.</p>
+  <div class="layout">
+    <section class="panel" aria-label="Assessment questions">
+      <form id="assessment">
+        <fieldset><legend>01 / How was your sleep?</legend>
+          <label><input type="radio" name="sleep" value="3">Restful and sufficient</label>
+          <label><input type="radio" name="sleep" value="2">Average</label>
+          <label><input type="radio" name="sleep" value="1">Poor or insufficient</label>
+        </fieldset>
+        <fieldset><legend>02 / How well have you eaten?</legend>
+          <label><input type="radio" name="fuel" value="3">Well fueled</label>
+          <label><input type="radio" name="fuel" value="2">Somewhat fueled</label>
+          <label><input type="radio" name="fuel" value="1">Under-fueled</label>
+        </fieldset>
+        <fieldset><legend>03 / How fatigued do you feel?</legend>
+          <label><input type="radio" name="fatigue" value="3">Fresh and ready</label>
+          <label><input type="radio" name="fatigue" value="2">Some fatigue</label>
+          <label><input type="radio" name="fatigue" value="1">Significant fatigue</label>
+        </fieldset>
+        <button type="reset">Reset assessment</button>
+      </form>
+    </section>
+    <aside class="panel" aria-live="polite" aria-atomic="true">
+      <div class="eyebrow">LIVE ASSESSMENT</div>
+      <div class="score"><span id="score">—</span><small> / 9</small></div>
+      <div class="meter"><div id="fill"></div></div>
+      <div id="status">Awaiting answers</div>
+      <p id="advice">Complete all three questions to see a suggested approach to today's training.</p>
+      <p class="note">Educational demonstration only. This score is an illustrative heuristic, not a validated readiness measurement. Pain, illness, injury, and other warning signs require separate consideration.</p>
+    </aside>
+  </div>
+</main>
+<script>
+  const form = document.getElementById('assessment');
+  function update() {
+    const values = ['sleep','fuel','fatigue'].map(name => form.querySelector('input[name="'+name+'"]:checked'));
+    const complete = values.every(Boolean);
+    const score = complete ? values.reduce((sum, item) => sum + Number(item.value), 0) : null;
+    document.getElementById('score').textContent = complete ? score : '—';
+    document.getElementById('fill').style.width = complete ? (score / 9 * 100) + '%' : '0%';
+    const status = document.getElementById('status');
+    const advice = document.getElementById('advice');
+    if (!complete) {
+      status.textContent = 'Awaiting answers';
+      advice.textContent = 'Complete all three questions to see a suggested approach to today\'s training.';
+    } else if (score >= 8) {
+      status.textContent = 'Higher reported readiness';
+      advice.textContent = 'Consider your planned session, then confirm your readiness through your warm-up and early sets.';
+    } else if (score >= 5) {
+      status.textContent = 'Moderate reported readiness';
+      advice.textContent = 'Consider reducing one demand: volume, load, intensity, or exercise complexity. Reassess as you warm up.';
+    } else {
+      status.textContent = 'Lower reported readiness';
+      advice.textContent = 'Consider a lighter session, technique work, or recovery instead of pushing for peak performance.';
+    }
+  }
+  form.addEventListener('change', update);
+  form.addEventListener('reset', () => setTimeout(update, 0));
+  update();
+</script>
+</body>
+</html>
